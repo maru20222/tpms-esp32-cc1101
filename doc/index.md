@@ -1,4 +1,4 @@
-# TPMS受信機 ハードウェア構成
+﻿# TPMS受信機 ハードウェア構成
 
 ## CC1101とESP32-S3-WROOM-2 N32R16V ピン対応表
 
@@ -239,3 +239,11 @@ User_Setup.h の主要設定：
 #define TFT_BL      7
 #define SPI_FREQUENCY  40000000
 ```
+
+### 参考資料
+
+- [CC1101 Datasheet](https://www.ti.com/lit/ds/symlink/cc1101.pdf)
+- [ESP32-S3-DevKitC-1 User Guide](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32s3/esp32-s3-devkitc-1/user_guide_v1.0.html)
+- [RadioLib Documentation](https://github.com/jgromes/RadioLib)
+- [Arduino TPMS Tyre Pressure Display](https://www.hackster.io/jsmsolns/arduino-tpms-tyre-pressure-display-b6e544)
+- [reddit Need help decoding TPMS sensor](https://www.reddit.com/r/RTLSDR/comments/v0hqqf/need_help_decoding_tpms_sensor/)
