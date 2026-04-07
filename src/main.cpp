@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <RadioLib.h>
+#include "lcd_display.h"
 
 // ====== あなたのSPI配線に合わせる ======
 static const int PIN_CS   = 10;   // CC1101 pin4 CSN
@@ -13,8 +14,13 @@ static const int PIN_GDO0 = 16;
 // GDO2 (CC1101 pin8) -> ESP32 GPIO15 (Async Data)
 static const int PIN_GDO2 = 15;
 
+// ====== CC1101 専用 SPI (HSPI = SPI3_HOST) ======
+// TFT_eSPI が FSPI (SPI2_HOST, デフォルト SPI) を使用するため、
+// CC1101 は HSPI (SPI3_HOST) を使用して干渉を回避する。
+static SPIClass cc1101Spi(HSPI);
+
 // ====== RadioLib ======
-CC1101 radio = new Module(PIN_CS, /*GDO0*/ -1, /*RST*/ -1, /*GDO2*/ -1);
+CC1101 radio = new Module(PIN_CS, /*GDO0*/ -1, /*RST*/ -1, /*GDO2*/ -1, cc1101Spi);
 
 // ====== CC1101 regs/const ======
 static const uint8_t REG_IOCFG2   = 0x00;
@@ -26,14 +32,14 @@ static const uint8_t READ_SINGLE  = 0x80;
 
 void ccWrite(uint8_t addr, uint8_t val) {
   digitalWrite(PIN_CS, LOW);
-  SPI.transfer(addr);
-  SPI.transfer(val);
+  cc1101Spi.transfer(addr);
+  cc1101Spi.transfer(val);
   digitalWrite(PIN_CS, HIGH);
 }
 uint8_t ccRead(uint8_t addr) {
   digitalWrite(PIN_CS, LOW);
-  SPI.transfer(addr | READ_SINGLE);
-  uint8_t v = SPI.transfer(0);
+  cc1101Spi.transfer(addr | READ_SINGLE);
+  uint8_t v = cc1101Spi.transfer(0);
   digitalWrite(PIN_CS, HIGH);
   return v;
 }
@@ -1290,7 +1296,8 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
 
-  SPI.begin(PIN_SCK, PIN_MISO, PIN_MOSI);
+  // CC1101 専用 SPI バス初期化 (HSPI = SPI3_HOST)
+  cc1101Spi.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CS);
   pinMode(PIN_CS, OUTPUT);
   digitalWrite(PIN_CS, HIGH);
 
@@ -1310,6 +1317,8 @@ void setup() {
   ccEnableAsyncOnGDO2();
 
   lastEdgeUs = micros();
+
+  lcdBegin();  // LCD 4分割表示 初期化
 }
 
 void loop() {
@@ -1400,6 +1409,15 @@ void loop() {
     cntNoCarrier = 0;
     cntQualNG = 0;
     cntHalfUsNG = 0;
+  }
+
+  // ---- LCD 定期更新 (200ms) ----
+  {
+    static uint32_t lastLcdMs = 0;
+    if (millis() - lastLcdMs >= 200) {
+      lastLcdMs = millis();
+      lcdRefresh();
+    }
   }
 
   // ---- BURST確定したら解析＆出力 ----
@@ -1647,6 +1665,10 @@ void loop() {
             } else {
               Serial.printf(" [%s] P*=%02X Q=%u %.1fPSI=%.0fkPa=%.2fbar T=%d°C%s%s",
                             sLabel, P7, Q7, p7s.psi, p7s.kPa, p7s.bar, t7s, alertStr7, p7sRangeOk?"":" **P-RANGE!**");
+            }
+            // LCD 更新 (圧力が現実範囲内 かつ センサー識別済みの場合のみ)
+            if (p7sRangeOk && si7 >= 0) {
+              lcdUpdateTire(si7, p7s.kPa, p7s.bar, t7s, alertStr7);
             }
           } else {
             Serial.printf(" [%s?] P*=--(votes=%d/%d noisy) d6=%02X",

@@ -204,7 +204,7 @@ CC1101 とは**独立した SPI3 バス**を使用（速度設定の切り替え
 | CS | チップセレクト | GPIO6 | |
 | BLK | バックライト | GPIO7 | High=ON、または3.3V直結 |
 
-### ソフトウェア設定（予定）
+### ソフトウェア設定
 
 ```cpp
 #define LCD_SCK   17   // SPI3 専用
@@ -215,14 +215,14 @@ CC1101 とは**独立した SPI3 バス**を使用（速度設定の切り替え
 #define LCD_BLK    7
 ```
 
-### ライブラリ（予定）: TFT_eSPI
+### ライブラリ: Adafruit ST7789 Library, GFX Library
 
 platformio.ini に追加：
 
 ```ini
 lib_deps =
-  jgromes/RadioLib@^7.0.0
-  bodmer/TFT_eSPI@^2.5.43
+  adafruit/Adafruit ST7735 and ST7789 Library
+  adafruit/Adafruit GFX Library
 ```
 
 User_Setup.h の主要設定：
@@ -247,3 +247,4 @@ User_Setup.h の主要設定：
 - [RadioLib Documentation](https://github.com/jgromes/RadioLib)
 - [Arduino TPMS Tyre Pressure Display](https://www.hackster.io/jsmsolns/arduino-tpms-tyre-pressure-display-b6e544)
 - [reddit Need help decoding TPMS sensor](https://www.reddit.com/r/RTLSDR/comments/v0hqqf/need_help_decoding_tpms_sensor/)
+- [Printables ESP32 with CC1101 Case](https://www.printables.com/model/1241571-esp32-with-cc1101-case)
