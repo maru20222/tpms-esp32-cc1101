@@ -21,17 +21,20 @@ static const int LCD_SENSOR_COUNT = 4;
 // 各センサーの最新状態（lcd_display.cpp に実体、main.cpp から更新）
 extern TireState g_tireState[LCD_SENSOR_COUNT];
 
-// ─── 車両レイアウト (4 分割位置) ──────────────────────────────
-// SENSOR_DEFS[] インデックス → 画面象限 (0=左上, 1=右上, 2=左下, 3=右下)
+// ─── 車両レイアウト (2LCD 左右分割) ──────────────────────────
+// 左LCD(既存): 左側タイヤ   右LCD(追加): 右側タイヤ
 //
-//   SENSOR_DEFS[1] F.L A  |  SENSOR_DEFS[2] F.R B
-//   -----------------------+------------------------
-//   SENSOR_DEFS[0] R.L D  |  SENSOR_DEFS[3] R.R C
+//   ┌──────────┐  ┌──────────┐
+//   │ F.L A    │  │ F.R B    │  ← 上段 (Front)
+//   │──────────│  │──────────│
+//   │ R.L D    │  │ R.R C    │  ← 下段 (Rear)
+//   └──────────┘  └──────────┘
 //
-static const int LCD_SDEF_TO_QUAD[LCD_SENSOR_COUNT] = { 2, 0, 1, 3 };
+// SENSOR_DEFS[] インデックス → スロット (0=左上, 1=左下, 2=右上, 3=右下)
+static const int LCD_SDEF_TO_SLOT[LCD_SENSOR_COUNT] = { 1, 0, 2, 3 };
 //   sensorDefIdx:          0  1  2  3
-//   quadrant:              ↓  ↓  ↓  ↓
-//                         BL TL TR BR  (BL=bottom-left, TL=top-left, …)
+//   slot:                  ↓  ↓  ↓  ↓
+//                         LB LT RT RB  (L=左LCD, R=右LCD, T=top, B=bottom)
 
 // ─── 公開 API ─────────────────────────────────────────────────
 

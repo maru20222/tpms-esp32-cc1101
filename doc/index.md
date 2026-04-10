@@ -197,22 +197,36 @@ CC1101 とは**独立した SPI3 バス**を使用（速度設定の切り替え
 |-----------|------|---------------|------|
 | VCC | 電源 | 3.3V | |
 | GND | グランド | GND | |
-| SCL | SPI クロック | GPIO17 | SPI3 専用 |
-| SDA | SPI MOSI | GPIO18 | SPI3 専用 |
-| RES | ハードリセット | GPIO4 | |
-| DC | データ/コマンド | GPIO5 | |
-| CS | チップセレクト | GPIO6 | |
-| BLK | バックライト | GPIO7 | High=ON、または3.3V直結 |
+| SCL | SPI クロック | GPIO17 | SPI3 専用（全LCD共有）|
+| SDA | SPI MOSI | GPIO18 | SPI3 専用（全LCD共有）|
+| RES | ハードリセット | GPIO4 | 第1LCD（左側、既存）|
+| DC | データ/コマンド | GPIO5 | 第1LCD（左側、既存）|
+| CS | チップセレクト | GPIO6 | 第1LCD（左側、既存）|
+| BLK | バックライト | GPIO7 | 全LCD共用（High=ON、または3.3V直結）|
+
+右側用に追加する第2台LCDの制御ピン：
+
+| 信号 | 第2LCD（右側） 推奨 GPIO | 備考 |
+|------|------------------------|------|
+| RES2 | GPIO19 | 第2LCD（右側）のハードリセット |
+| DC2  | GPIO21 | 第2LCD（右側）の D/C |
+| CS2  | GPIO20 | 第2LCD（右側）の CS |
+
 
 ### ソフトウェア設定
 
 ```cpp
 #define LCD_SCK   17   // SPI3 専用
 #define LCD_MOSI  18   // SPI3 専用
-#define LCD_RST    4
-#define LCD_DC     5
-#define LCD_CS     6
-#define LCD_BLK    7
+#define LCD_RST    4    // 第1LCD RST
+#define LCD_DC     5    // 第1LCD DC
+#define LCD_CS     6    // 第1LCD CS
+#define LCD_BLK    7    // バックライト（全LCD共用）
+
+// 追加LCD用（推奨）
+#define LCD2_RST   19   // 第2LCD RST
+#define LCD2_DC    21   // 第2LCD DC
+#define LCD2_CS   20    // 第2LCD CS
 ```
 
 ### ライブラリ: Adafruit ST7789 Library, GFX Library
@@ -223,21 +237,6 @@ platformio.ini に追加：
 lib_deps =
   adafruit/Adafruit ST7735 and ST7789 Library
   adafruit/Adafruit GFX Library
-```
-
-User_Setup.h の主要設定：
-
-```cpp
-#define ST7789_DRIVER
-#define TFT_WIDTH  240
-#define TFT_HEIGHT 240
-#define TFT_MOSI   18   // SPI3
-#define TFT_SCLK   17   // SPI3
-#define TFT_CS      6
-#define TFT_DC      5
-#define TFT_RST     4
-#define TFT_BL      7
-#define SPI_FREQUENCY  40000000
 ```
 
 ### 参考資料
